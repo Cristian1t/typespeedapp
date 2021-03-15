@@ -9,22 +9,20 @@ Maecenas quis tortor porttitor interdum nulla eu elementum lacus Morbi imperdiet
     .sort(() => (Math.random() > 0.5 ? 1 : -1));
 
 function Word(props) {
-  const { text, active, correct, incorrect } = props;
+  const { text, active, correct } = props;
 
   if (correct === true) {
-    return <span className="correct">{text}</span>;
+    return <span className="correct">{text} </span>;
+  }
+  if (correct === false) {
+    return <span className="incorrect">{text} </span>;
   }
 
-  return (
-    <span
-      style={{
-        fontWeight: active ? 'bold' : 'normal',
-      }}
-    >
-      {' '}
-      {text}{' '}
-    </span>
-  );
+  if (active) {
+    return <span className="active">{text} </span>;
+  }
+
+  return <span>{text} </span>;
 }
 
 function App() {
@@ -33,12 +31,21 @@ function App() {
   const cloud = useRef(getCloud());
 
   const [activeWordIndex, setActiveWordIndex] = useState(0);
+  const [correctWordArray, setCorrectWordArray] = useState([]);
 
   function processInput(value) {
     if (value.endsWith(' ')) {
       // the user has finished this word
       setActiveWordIndex((index) => index + 1);
       setUserInput('');
+
+      //correct word
+      setCorrectWordArray((data) => {
+        const word = value.trim();
+        const newResult = [...data];
+        newResult[activeWordIndex] = word === cloud.current[activeWordIndex];
+        return newResult;
+      });
     } else {
       setUserInput(value);
     }
@@ -48,7 +55,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-
         <div>
           <h1>Typing Test</h1>
           <p>
@@ -57,8 +63,7 @@ function App() {
                 <Word
                   text={word}
                   active={index === activeWordIndex}
-                  correct={null}
-                  incorrect={null}
+                  correct={correctWordArray[index]}
                 />
               );
             })}
